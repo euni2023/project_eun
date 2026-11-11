@@ -318,6 +318,10 @@ button.primary:disabled { opacity: 0.5; cursor: default; }
 .author-box p { margin: 2px 0 4px; font-size: 13.5px; }
 .author-works { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; font-size: 13px; }
 .author-works .ws-alt { font-weight: 500; }
+.embed-card { margin-top: 14px; }
+.embed-head { align-items: center; margin-bottom: 8px; }
+.embed-head .side-title { margin: 0; }
+.embed-frame { width: 100%; height: 70vh; min-height: 420px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
 
 /* ── History ── */
 .history .entry {
