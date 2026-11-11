@@ -1,0 +1,17 @@
+{
+  "name": "geulbeot",
+  "version": "1.0.0",
+  "description": "스스로 글쓰기 능력을 향상시킬 수 있는 로컬 웹앱 (매일 글쓰기 · 스토리 · 독서토론)",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.68.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

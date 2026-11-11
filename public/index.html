@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>글벗 — 스스로 성장하는 글쓰기</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Nanum+Pen+Script&family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="logo">✒️</span>
+        <h1>글벗</h1>
+        <p class="tagline">스스로 성장하는 글쓰기 · AI 코멘트 · 오늘의 단어 · 독서토론 · 필사</p>
+      </div>
+      <nav class="tabs">
+        <button class="tab active" data-tab="daily">🖋️ 매일 글쓰기</button>
+        <button class="tab" data-tab="story">📖 스토리 쓰기</button>
+        <button class="tab" data-tab="book">💬 독서토론</button>
+        <button class="tab" data-tab="copy">✍️ 필사</button>
+        <button class="tab" data-tab="works">📚 나의 서재</button>
+      </nav>
+    </header>
+
+    <main>
+      <!-- ══ 매일 글쓰기 ══ -->
+      <section id="daily" class="panel active">
+        <div class="tricol">
+          <!-- 왼쪽: 목록 · 여정 -->
+          <aside class="col-left">
+            <div class="side-title">📊 나의 여정</div>
+            <div class="milestone-bar" id="milestoneBar"></div>
+            <div class="side-title">🖋️ 오늘의 책상</div>
+            <div class="side-note" id="todayNote"></div>
+            <div class="side-title row-between">
+              <span>📚 지난 글</span>
+              <button class="mini-link" id="dailyPrintAll">📖 전체 책으로</button>
+            </div>
+            <div id="dailyList" class="mini-list"></div>
+          </aside>
+
+          <!-- 가운데: 글쓰기 -->
+          <div class="col-center">
+            <div id="dailyWriteView">
+              <div class="card write-card">
+                <div class="card-head">
+                  <h2>오늘의 글</h2>
+                  <span class="hint">그날의 느낌이나 생각을 자유롭게 적어보세요.</span>
+                </div>
+                <div id="todayPrompt" class="today-prompt"></div>
+                <textarea id="dailyText" class="notebook" rows="15" placeholder="오늘 하루는 어땠나요? 떠오르는 생각, 감정, 장면 무엇이든 좋습니다..."></textarea>
+                <div class="row-end">
+                  <button id="dailySubmit" class="primary">✨ 오늘 글 마치고 AI에게 받기</button>
+                </div>
+                <div id="dailyFeedback" class="feedback-area"></div>
+              </div>
+            </div>
+
+            <div id="dailyReadView" class="hidden">
+              <div class="read-head">
+                <button class="link-btn" id="dailyBackToday">← 오늘 글쓰기로</button>
+                <div class="doc-tools">
+                  <button class="icon-btn" id="dailyTranslate">🌐 영어로 보기</button>
+                  <button class="icon-btn" id="dailyPrint">🖨️ 인쇄 / PDF</button>
+                  <button class="icon-btn" id="dailyDownload">⬇️ 텍스트</button>
+                </div>
+              </div>
+              <div class="card">
+                <div class="entry-date" id="readDate"></div>
+                <div class="entry-text" id="readText"></div>
+                <div id="readFeedback" class="feedback-area"></div>
+              </div>
+              <div id="readTranslation" class="translation hidden"></div>
+            </div>
+          </div>
+
+          <!-- 오른쪽: 오늘의 단어 -->
+          <aside class="col-right">
+            <div class="side-title">🔤 오늘의 단어</div>
+            <div class="card">
+              <div id="wordCard" class="word-card"></div>
+              <div id="wordChat" class="word-chat"></div>
+              <div class="ask-col">
+                <textarea id="wordInput" rows="2" placeholder="질문에 답하거나, 단어에 대해 물어보세요." disabled></textarea>
+                <button id="wordSend" class="primary" disabled>보내기</button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ══ 스토리 쓰기 ══ -->
+      <section id="story" class="panel">
+        <div class="tricol">
+          <!-- 왼쪽: 주제 생성 · 목록 · 개요 메모 · 하위 스토리 -->
+          <aside class="col-left">
+            <button id="catNewBtn" class="primary full">＋ 새 주제 만들기</button>
+            <div class="side-title" style="margin-top: 16px">📂 주제 목록</div>
+            <div id="catList" class="mini-list"></div>
+
+            <!-- 카테고리 선택 시 (개요는 오른쪽 컬럼에 표시) -->
+            <div id="catSelected" class="hidden">
+              <div class="side-title">📚 하위 스토리</div>
+              <div class="new-story-v">
+                <input id="subTitle" placeholder="새 스토리 제목" />
+                <button id="subCreate" class="primary">＋ 스토리 추가</button>
+              </div>
+              <div id="subList" class="mini-list"></div>
+            </div>
+          </aside>
+
+          <!-- 가운데: 글쓰기 -->
+          <div class="col-center">
+            <div id="storyEmpty" class="empty-state">왼쪽에서 주제를 선택하거나<br />새로 만들어 시작하세요.</div>
+            <div id="storyWork" class="hidden">
+              <div class="card">
+                <div class="card-head story-title-head">
+                  <h2 id="storyDetailTitle"></h2>
+                  <button class="mini-link" id="storyRename">제목 수정</button>
+                </div>
+                <div class="hint" id="storyCatLabel"></div>
+                <div class="doc-tools">
+                  <button class="icon-btn" id="storyTranslate">🌐 영어로 보기</button>
+                  <button class="icon-btn" id="storyPrint">📖 책으로 인쇄 / PDF</button>
+                  <button class="icon-btn" id="storyDownload">⬇️ 텍스트</button>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-head"><h3>이어서 쓰기</h3></div>
+                <textarea id="segmentText" class="notebook" rows="12" placeholder="다음 장면을 이어서 써보세요..."></textarea>
+                <div class="row-end">
+                  <button id="segmentSubmit" class="primary">📝 전문 작가 피드백 받기</button>
+                </div>
+              </div>
+              <div class="side-title">📖 지금까지의 이야기 <span class="hint">(각 단락 수정 가능)</span></div>
+              <div id="storySegments"></div>
+              <div id="storyTranslation" class="translation hidden"></div>
+            </div>
+          </div>
+
+          <!-- 오른쪽: 작가에게 물어보기 + 개요 메모 -->
+          <aside class="col-right">
+            <div class="side-title">💬 작가에게 물어보기</div>
+            <div class="card">
+              <p class="tool-hint" id="storyAskHint">전개 방향, 캐릭터, 표현 등 무엇이든 물어보세요.</p>
+              <div class="ask-col">
+                <input id="storyQuestion" placeholder="예: 주인공의 동기를 더 설득력 있게?" disabled />
+                <button id="storyAskBtn" class="primary" disabled>질문하기</button>
+              </div>
+              <div id="storyQa" class="qa-area"></div>
+            </div>
+
+            <div id="outlineRight" class="hidden">
+              <div class="side-title row-between">
+                <span>📝 스토리 개요</span>
+                <button class="mini-link" id="outlineDraft2">✨ AI 초안</button>
+              </div>
+              <div class="card memo-card">
+                <textarea id="outlineText2" class="memo" rows="8" placeholder="이 주제의 스토리 개요를 자유롭게 메모하세요. 배경 · 인물 · 갈등 · 전개 방향 등."></textarea>
+                <div class="row-end">
+                  <button id="outlineSave2" class="icon-btn">💾 개요 저장</button>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ══ 독서토론 ══ -->
+      <section id="book" class="panel">
+        <div class="tricol">
+          <!-- 왼쪽: 생성 · 목록 -->
+          <aside class="col-left">
+            <div class="side-title">＋ 새 독서토론</div>
+            <div class="card">
+              <div class="source-tabs">
+                <button class="src-tab active" data-src="title">제목</button>
+                <button class="src-tab" data-src="text">텍스트</button>
+                <button class="src-tab" data-src="image">사진</button>
+              </div>
+              <div class="src-body">
+                <input id="bookTitle" placeholder="책 제목 (예: 데미안)" />
+                <textarea id="bookText" class="hidden" rows="5" placeholder="읽은 부분을 붙여넣으세요..."></textarea>
+                <div id="bookImageWrap" class="hidden image-drop">
+                  <input type="file" id="bookImage" accept="image/*" />
+                  <img id="bookImagePreview" class="hidden" />
+                </div>
+              </div>
+              <div class="row-end">
+                <button id="bookCreate" class="primary">💬 시작</button>
+              </div>
+            </div>
+            <div class="side-title">📚 토론 목록</div>
+            <div id="bookSessions" class="mini-list"></div>
+          </aside>
+
+          <!-- 가운데: 대화 -->
+          <div class="col-center">
+            <div id="bookEmpty" class="empty-state">왼쪽에서 토론을 시작하거나<br />선택하세요.</div>
+            <div id="bookChatWrap" class="hidden">
+              <div class="card chat-card">
+                <div class="card-head chat-head">
+                  <h2 id="bookDetailTitle"></h2>
+                  <div class="doc-tools">
+                    <button class="icon-btn" id="bookPrint">📖 인쇄 / PDF</button>
+                    <button class="icon-btn" id="bookDownload">⬇️ 텍스트</button>
+                  </div>
+                </div>
+                <div id="chatMessages" class="chat-messages"></div>
+                <div class="chat-input">
+                  <textarea id="chatText" rows="2" placeholder="생각을 자유롭게 적어보세요..."></textarea>
+                  <button id="chatSend" class="primary">보내기</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 오른쪽: 자료 · 생각 도구 -->
+          <aside class="col-right">
+            <div class="side-title">📖 자료</div>
+            <div class="side-note" id="bookMeta">토론을 선택하면 표시됩니다.</div>
+            <div class="side-title">🧭 생각 도구 (질문 만들기)</div>
+            <div class="think-tools" id="thinkTools"></div>
+            <p class="tool-hint">버튼을 누르면 문장을 시작해 드려요. 이어서 내 생각을 표현해 보세요.</p>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ══ 필사 ══ -->
+      <section id="copy" class="panel">
+        <div class="tricol">
+          <!-- 왼쪽: 책 등록 · 책 목록 -->
+          <aside class="col-left">
+            <div class="side-title">＋ 필사할 책 등록</div>
+            <div class="card">
+              <div class="new-story-v">
+                <input id="copyBookTitle" placeholder="책 제목 (예: 소년이 온다)" />
+                <input id="copyBookAuthor" placeholder="저자" />
+                <input id="copyBookPublisher" placeholder="출판사 (선택)" />
+                <button id="copyBookCreate" class="primary">📚 책 등록</button>
+              </div>
+            </div>
+            <div class="side-title">📚 필사 중인 책</div>
+            <div id="copyBookList" class="mini-list"></div>
+          </aside>
+
+          <!-- 가운데: 필사하기 + 필사 노트 -->
+          <div class="col-center">
+            <div id="copyEmpty" class="empty-state">왼쪽에서 책을 등록하거나<br />선택해 필사를 시작하세요.</div>
+            <div id="copyWork" class="hidden">
+              <div class="card">
+                <div id="copyBookView" class="card-head row-between">
+                  <div>
+                    <h2 id="copyBookName"></h2>
+                    <div class="hint" id="copyBookMeta"></div>
+                  </div>
+                  <div class="doc-tools">
+                    <button class="icon-btn" id="copyBookEdit">✏️ 책 정보</button>
+                    <button class="icon-btn" id="copyDownload">⬇️ 텍스트</button>
+                  </div>
+                </div>
+                <div id="copyBookForm" class="hidden">
+                  <div class="copy-book-form">
+                    <input id="copyEditTitle" placeholder="책 제목" />
+                    <input id="copyEditAuthor" placeholder="저자" />
+                    <input id="copyEditPublisher" placeholder="출판사" />
+                  </div>
+                  <div class="row-between">
+                    <button class="mini-link" id="copyBookDelete">✕ 책 삭제</button>
+                    <span>
+                      <button class="icon-btn" id="copyBookCancel">취소</button>
+                      <button class="primary" id="copyBookSave">저장</button>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-head row-between">
+                  <h3>✍️ 필사하기</h3>
+                  <label class="copy-page">쪽 <input id="copyPage" placeholder="예: 23" /></label>
+                </div>
+                <textarea id="copyText" class="notebook copy-input" rows="8" placeholder="책을 펴고 마음에 닿는 문장을 천천히 옮겨 적어보세요..."></textarea>
+                <div class="copy-thought-box">
+                  <label class="modal-label">💭 내 생각</label>
+                  <textarea id="copyThought" class="memo" rows="3" placeholder="이 문장을 쓰며 떠오른 생각, 질문, 내 경험을 덧붙여 보세요. (선택)"></textarea>
+                </div>
+                <div class="row-end">
+                  <button id="copySave" class="primary">✍️ 필사 저장</button>
+                </div>
+              </div>
+
+              <div class="side-title row-between">
+                <span>📖 필사 노트</span>
+                <span class="hint" id="copyNoteCount"></span>
+              </div>
+              <div id="copyEntries"></div>
+            </div>
+          </div>
+
+          <!-- 오른쪽: 기록 · 문장 해설 -->
+          <aside class="col-right">
+            <div class="side-title">📊 필사 기록</div>
+            <div class="side-stats" id="copyStats"></div>
+            <div class="side-title">🔍 문장 해설</div>
+            <div id="copyAnalysis" class="side-note">필사 노트에서 '🔍 해설'을 누르면 그 대목의 문체와 표현을 짚고, 내 생각에도 한마디 건네드려요.</div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ══ 나의 서재 ══ -->
+      <section id="works" class="panel">
+        <div class="tricol">
+          <!-- 왼쪽: 작품 등록 -->
+          <aside class="col-left">
+            <div class="side-title">＋ 좋아하는 작품 등록</div>
+            <div class="card">
+              <div class="new-story-v">
+                <input id="workTitle" placeholder="작품 제목 (예: 어린 왕자)" />
+                <input id="workAuthor" placeholder="저자 (선택)" />
+                <textarea id="workNote" rows="4" placeholder="좋아하는 이유, 기억에 남는 장면이나 문장 (선택)"></textarea>
+                <button id="workCreate" class="primary">📚 등록하기</button>
+              </div>
+            </div>
+            <p class="tool-hint">등록한 작품에서 AI가 글쓰기 질문을 만들어 두고, 매일 그중 하나를 '오늘의 질문'으로 보여드려요.</p>
+          </aside>
+
+          <!-- 가운데: 작품 목록 -->
+          <div class="col-center">
+            <div id="worksList"></div>
+          </div>
+
+          <aside class="col-right">
+            <div class="side-title">💡 오늘의 질문</div>
+            <div class="side-note" id="worksTodayPrompt"></div>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <!-- 새 주제 만들기 팝업 -->
+    <div id="catModal" class="modal-overlay hidden">
+      <div class="modal">
+        <div class="modal-head">
+          <h3>새 주제 만들기</h3>
+          <button class="modal-x" id="catModalClose" title="닫기">✕</button>
+        </div>
+        <label class="modal-label">제목</label>
+        <div class="btn-row">
+          <input id="modalCatTitle" placeholder="주제 (예: 성장, 우정, 미스터리)" />
+          <button id="modalCatSuggest" class="icon-btn">🎲 AI</button>
+        </div>
+        <label class="modal-label">초기 스토리 개요 (선택)</label>
+        <textarea id="modalOutline" class="memo" rows="7" placeholder="배경 · 인물 · 갈등 · 전개 방향 등 자유롭게 적어보세요."></textarea>
+        <div class="row-between modal-foot">
+          <button id="modalOutlineDraft" class="mini-link">✨ AI 개요 초안</button>
+          <div class="modal-actions">
+            <button id="catModalCancel" class="icon-btn">취소</button>
+            <button id="catModalCreate" class="primary">만들기</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast hidden"></div>
+    <div id="printRoot"></div>
+    <script src="app.js"></script>
+  </body>
+</html>
